@@ -1,9 +1,26 @@
-/*
- * time.h
- *
- *  Created on: Aug 6, 2023
- *      Author: xmj_j
- */
+/***********************************************************************
+*
+* Filename:     time.h
+*
+* Description:  This header file provides data structures, macros,
+*               and function declarations related to time management,
+*               including NMEA time format, Unix timestamp conversion,
+*               and operations for RTC (Real-Time Clock). The file
+*               also includes utility functions for converting and
+*               displaying time in different formats.
+*
+* Author:       xmj_j
+*
+* Created on:   Aug 6, 2023
+*
+* Notes:        Library file to do time related conversions, data types definition,
+*
+* Rev History:
+*       Date            Author      Description
+*       ----            ------      -----------
+*       2023-08-06      xmj_j      Initial creation
+*
+***********************************************************************/
 
 #ifndef INC_TIME_H_
 #define INC_TIME_H_
@@ -16,14 +33,15 @@
 //UTC Time message
 __packed typedef struct
 {
- 	uint16_t year;	//年份
-	uint8_t month;	//月份
-	uint8_t date;	//日期
-	uint8_t hour; 	//小时
-	uint8_t min; 	//分钟
-	uint8_t sec; 	//秒钟
+ 	uint16_t year;	//year
+	uint8_t month;	//month
+	uint8_t date;	//date
+	uint8_t hour; 	//hour
+	uint8_t min; 	//minute
+	uint8_t sec; 	//second
 }nmea_time;
 
+//Store the data needed to transmit
 typedef struct{
     uint32_t unix_timestamp;
     nmea_time utc_time;
@@ -32,6 +50,7 @@ typedef struct{
     uint32_t elapsed_seconds;
 }time_data;
 
+//Current UK time
 typedef struct {
     nmea_time local_time;
 } NMEA_Result;
@@ -41,13 +60,13 @@ typedef struct t_xtime {
   int hour; int minute;  int second;
 } _xtime ;
 
-#define xMINUTE    (60        ) //Seconds to 1 minute
-#define xHOUR      (60*xMINUTE) //1小时的秒数
-#define xDAY        (24*xHOUR   ) //1天的秒数
-#define xYEAR       (365*xDAY   ) //1年的秒数
+#define xMINUTE    (60        ) //seconds in one minute
+#define xHOUR      (60*xMINUTE) //seconds in 1 hour
+#define xDAY        (24*xHOUR   ) //seconds in 1 day
+#define xYEAR       (365*xDAY   ) //seconds in 1 year
 
-#define ONEDAYTOSENCOND (24 * 60 * 60)    // seconds to one day
-#define ONEMINUTETOSENCOND 60             // seconds to one minute
+#define ONEDAYTOSENCOND (24 * 60 * 60)    // day second conversion
+#define ONEMINUTETOSENCOND 60             // minute second conversion
 
 extern NMEA_Result NMEA_result;
 extern RTC_TimeTypeDef sTime;
@@ -62,7 +81,7 @@ void Set_RTC_From_Buffer(uint8_t* buffer);
 
 unsigned int  xDate2Seconds(_xtime *time);
 
-//UNIX转为UTC 已进行时区转换 北京时间UTC+8
+//UNIX to UTC has been converted to desired time zone
 void xSeconds2Date(unsigned long seconds,_xtime *time );
 uint32_t ConvertDateToSecond(const uint8_t *date);
 time_data read_time(uint32_t startTime);

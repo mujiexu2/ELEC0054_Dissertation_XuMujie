@@ -1,7 +1,7 @@
 /*
  * icm20948.h
  *
- *  Created on: Jul 30, 2023
+ *  Created on: Aug 18, 2023
  *      Author: xmj_j
  */
 
@@ -120,6 +120,7 @@ void icm20948_i2c_master_clk_frq(uint8_t config); // 0 - 15
 void icm20948_clock_source(uint8_t source);
 void icm20948_odr_align_enable();
 
+// Enable digital LPF
 void icm20948_gyro_low_pass_filter(uint8_t config); // 0 - 7
 void icm20948_accel_low_pass_filter(uint8_t config); // 0 - 7
 
@@ -132,6 +133,7 @@ void ak09916_operation_mode_setting(operation_mode mode);
 void icm20948_gyro_calibration();
 void icm20948_accel_calibration();
 
+//select full-scale range
 void icm20948_gyro_full_scale_select(gyro_full_scale full_scale);
 void icm20948_accel_full_scale_select(accel_full_scale full_scale);
 
@@ -286,6 +288,7 @@ void icm20948_accel_full_scale_select(accel_full_scale full_scale);
 #define MAG_CNTL3						0x32
 #define MAG_TS1							0x33
 #define MAG_TS2							0x34
+
 
 
 #endif /* INC_ICM20948_H_ */

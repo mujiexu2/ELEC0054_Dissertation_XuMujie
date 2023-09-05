@@ -51,6 +51,7 @@
 /* Private variables ---------------------------------------------------------*/
 
 /* USER CODE BEGIN PV */
+//initialize variables for storing imu data
 axises my_gyro;
 axises my_accel;
 axises my_mag;
@@ -74,6 +75,7 @@ RTC_DateTypeDef sDate = {0};
 
 NMEA_Result NMEA_result;
 
+//organized data for future sending, including the time data and sensor data
 typedef struct {
     time_data time_info;
     icm_20948_data sensor_data;
@@ -100,10 +102,11 @@ void SystemClock_Config(void);
 int main(void)
 {
   /* USER CODE BEGIN 1 */
+	//initialize time data and sensor data
 	icm_20948_data imu_data;
 	time_data time_result;
-
-	combined_data dataToSend;
+	combined_data dataToSend;7
+	//get start time for getting the elapsed time later
 	uint32_t startTime = HAL_GetTick();
   /* USER CODE END 1 */
 
@@ -130,6 +133,7 @@ int main(void)
   MX_USB_DEVICE_Init();
   MX_RTC_Init();
   /* USER CODE BEGIN 2 */
+  //initialize ICM gyroscope, accelerometer and magnetometer peripherals and configuration
   icm20948_init();
   ak09916_init();
 
@@ -142,86 +146,14 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
-//	  icm20948_gyro_read_dps(&my_gyro);
-//	  icm20948_accel_read_g(&my_accel);
-//	  ak09916_mag_read_uT(&my_mag);
+	// This segment fetches sensor data, combines it with time information,
+	// formats it into a specific string format, and sends it over USB.
+	  dataToSend.time_info = read_time(startTime); // Assume you already have the read_time function
+	  dataToSend.sensor_data = read_all_data(); // Assume you have modified the read_all_data function as previously indicated
 
-	  /*workable code*/
-
-//	  read_all_data(&imu_data);
-
-	  //2
-//	  uint8_t buffer[] = "Hello, World!\r\n";
-//	  CDC_Transmit_FS(buffer, sizeof(buffer));
-//	  HAL_Delay(1000);
-
-//	  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-//	  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
-//
-//	/* Display date Format : yy/mm/dd */
-//	  printf("%04d/%02d/%02d\r\n",2000 + sDate.Year, sDate.Month, sDate.Date);
-//	  /* Display time Format : hh:mm:ss */
-//	  printf("%02d:%02d:%02d\r\n",sTime.Hours, sTime.Minutes, sTime.Seconds);
-//
-//	  printf("\r\n");
-//
-
-
-//	  // 获�?� RTC 的时间和日期
-//	  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
-//	  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
-//
-//	  // 显示日期和时间
-//	  /* Display date Format : yy/mm/dd */
-//	  printf("%04d/%02d/%02d\r\n",2000 + sDate.Year, sDate.Month, sDate.Date);
-//	  /* Display time Format : hh:mm:ss */
-//	  printf("UTC Time is: %02d:%02d:%02d\r\n",sTime.Hours, sTime.Minutes, sTime.Seconds);
-////	  printf("\r\n");
-//
-//	  // 创建一个数组，将从 RTC 获�?�的日期和时间转�?�为 "DDMMYY,HHMMSS.SSS" 格�?
-//	  uint8_t rtcDate[14];
-//	  sprintf((char *)rtcDate, "%02d%02d%02d,%02d%02d%02d.000",
-//	          sDate.Date, sDate.Month, sDate.Year,
-//	          sTime.Hours, sTime.Minutes, sTime.Seconds);
-//
-//	  // 将 RTC 的日期和时间转�?�为 Unix 时间戳
-//	  uint32_t timestamp = ConvertDateToSecond(rtcDate);
-//	  printf("Unix Timestamp: %u\n", timestamp);
-//
-//	    // 为NMEA time结构填充RTC的日期和时间
-//	  nmea_time testTime = {
-//			  .year = 2000 + sDate.Year,
-//			  .month = sDate.Month,
-//			  .date = sDate.Date,
-//			  .hour = sTime.Hours,
-//			  .min = sTime.Minutes,
-//			  .sec = sTime.Seconds
-//	  };
-//
-//	    // 使用UTC_to_UKtime函数转�?�时间
-//	  UTC_to_UKtime(&testTime);
-//
-//	    // 打�?�转�?��?�的英国�?令时时间
-//	  printf("Local UK time: %04d-%02d-%02d %02d:%02d:%02d\n",
-//	           NMEA_result.local_time.year, NMEA_result.local_time.month, NMEA_result.local_time.date,
-//	           NMEA_result.local_time.hour, NMEA_result.local_time.min, NMEA_result.local_time.sec);
-//
-//	  // 计算程�?�?行�?�的�?�?时间
-//	  uint32_t elapsedTime = HAL_GetTick() - startTime;
-//	  uint32_t elapsedSeconds = elapsedTime / 1000;
-//	  uint32_t elapsedMinutes = elapsedSeconds / 60;
-//	  elapsedSeconds %= 60;
-//
-//	  printf("Elapsed time: %02u:%02u\n", elapsedMinutes, elapsedSeconds);
-//	  printf("\r\n");
-
-//	  time_result = read_time(startTime);
-
-	  dataToSend.time_info = read_time(startTime); // �?�设你已�?有了read_time函数
-	  dataToSend.sensor_data = read_all_data(); // �?�设你已�?修改了read_all_data函数如之�?所示
-
-	  char buffer[512]; // �?�设512字节足够大
-
+	  char buffer[512]; // suppose 512 bytes is big enough
+	  // Creating a formatted string from the combined time and sensor data
+	  // part to insert special character that enable future data splitting
 	  sprintf(buffer,
 			  "#%u&" //unix timestamp
 			  "%04d-%02d-%02d %02d:%02d:%02d&" // utc_timestamp
@@ -262,7 +194,7 @@ int main(void)
 			  dataToSend.sensor_data.z_magnet
 
 	  );
-
+	  //transmit to the USB VCP
 	  CDC_Transmit_FS(buffer, strlen(buffer));
 
 
@@ -335,6 +267,7 @@ void SystemClock_Config(void)
   HAL_RCCEx_EnableMSIPLLMode();
 }
 
+//printf function
 /* USER CODE BEGIN 4 */
 int _write(int file, char *ptr, int len)
 {

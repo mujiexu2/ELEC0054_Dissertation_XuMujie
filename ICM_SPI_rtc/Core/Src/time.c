@@ -1,26 +1,45 @@
+/**
+ * @file    time.c
+ * @brief   This file contains functions for managing and converting time data.
+ *
+ * It includes the following functionalities:
+ * 1. Sending a time request to a PC via USB VCP. (for old plan: current data get from PC through USB VCP)
+ * 2. Receiving time data via USB CDC and updating the STM32's RTC. (for old plan: current data get from PC through USB VCP)
+ * 3. Converting UTC time to Beijing time (commented out).
+ * 4. Checking for leap years and calculating the number of days in a month.
+ * 5. Determining whether daylight saving time adjustments should be applied.
+ * 6. Converting UTC time to UK time considering DST.
+ * 7. Converting time to seconds since the UNIX epoch (1970).
+ * 8. Converting seconds since the UNIX epoch to a date-time structure.
+ * 9. Convert GPS Date to seconds.
+ *
+ * @author  [Author's Name]
+ * @date    [Date]
+ * @version 1.0
+ */
 #include "time.h"
 #include "rtc.h"
 
 //send timing request to PC from USB VCP
 void time_request(void) {
     uint8_t request[] = "Get Time from VCP!!\r\n";
-    CDC_Transmit_FS(request, sizeof(request) - 1); // 注意: 使用 sizeof(request) - 1，因为我们不想发送结束字符'\0'
+    CDC_Transmit_FS(request, sizeof(request) - 1); // NOTE: Use sizeof(request) - 1 because we don't want to send the terminating character '\0'
 	HAL_Delay(1000);
 }
 
 //STM32 receive time data
 uint8_t rx_buffer[64];  // declare a receiver buffer
 
-// 这是一个回调函数，当有数据通过USB CDC接收时会被调用 a callback function, when data passes USB CDC will call this function
+// a callback function, when data passes USB CDC will call this function
 void CDC_Received_Callback(uint8_t* Buf, uint32_t Len) {
-    memcpy(rx_buffer, Buf, Len);  // 拷贝接收到的数据到rx_buffer copy received data to rx_buffer
+    memcpy(rx_buffer, Buf, Len);  // copy received data to rx_buffer copy received data to rx_buffer
     Set_RTC_From_Buffer(rx_buffer);
 }
 
 void Set_RTC_From_Buffer(uint8_t* buffer) {
     RTC_TimeTypeDef sTime;
     RTC_DateTypeDef sDate;
-    // 假设你的PC端程序发送的格式为: "YYYY-MM-DD HH:MM:SS"
+    // Assume that the format sent by your PC program is: "YYYY-MM-DD HH:MM:SS"
     sscanf((char*)buffer, "%04d-%02d-%02d %02d:%02d:%02d", &sDate.Year, &sDate.Month, &sDate.Date, &sTime.Hours, &sTime.Minutes, &sTime.Seconds);
 
     HAL_RTC_SetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
@@ -98,7 +117,7 @@ void Set_RTC_From_Buffer(uint8_t* buffer) {
 //	NMEA_result.local_time.sec	 = utc_time->sec;
 //}
 
-// 判断给定的年份是否为闰年
+// assess if this year is a leap year
 int isLeapYear(int year) {
     if(year % 400 == 0) return 1;
     if(year % 100 == 0) return 0;
@@ -106,7 +125,7 @@ int isLeapYear(int year) {
     return 0;
 }
 
-// 返回指定月份的天数
+// Returns the number of days in the specified month
 int daysInMonth(int month, int year) {
     switch(month) {
         case 2: return isLeapYear(year) ? 29 : 28;
@@ -114,7 +133,7 @@ int daysInMonth(int month, int year) {
         default: return 31;
     }
 }
-// 判断是否应该应用夏令时调整
+// Determine whether daylight saving time adjustments should be applied
 int isInDST(nmea_time* time) {
     int lastSundayOfMarch = 31 - (2 + 31 - time->year) % 7;
     int lastSundayOfOctober = 31 - (5 + 31 - time->year) % 7;
@@ -165,74 +184,74 @@ void UTC_to_UKtime(nmea_time* utc_time) {
 unsigned int  xDate2Seconds(_xtime *time)
 {
   static unsigned int  month[12]={
-    /*01月*/xDAY*(0),
-    /*02月*/xDAY*(31),
-    /*03月*/xDAY*(31+28),
-    /*04月*/xDAY*(31+28+31),
-    /*05月*/xDAY*(31+28+31+30),
-    /*06月*/xDAY*(31+28+31+30+31),
-    /*07月*/xDAY*(31+28+31+30+31+30),
-    /*08月*/xDAY*(31+28+31+30+31+30+31),
-    /*09月*/xDAY*(31+28+31+30+31+30+31+31),
-    /*10月*/xDAY*(31+28+31+30+31+30+31+31+30),
-    /*11月*/xDAY*(31+28+31+30+31+30+31+31+30+31),
-    /*12月*/xDAY*(31+28+31+30+31+30+31+31+30+31+30)
+    /*January*/xDAY*(0),
+    /*February*/xDAY*(31),
+    /*March*/xDAY*(31+28),
+    /*April*/xDAY*(31+28+31),
+    /*May*/xDAY*(31+28+31+30),
+    /*June*/xDAY*(31+28+31+30+31),
+    /*July*/xDAY*(31+28+31+30+31+30),
+    /*August*/xDAY*(31+28+31+30+31+30+31),
+    /*September*/xDAY*(31+28+31+30+31+30+31+31),
+    /*October*/xDAY*(31+28+31+30+31+30+31+31+30),
+    /*November*/xDAY*(31+28+31+30+31+30+31+31+30+31),
+    /*December*/xDAY*(31+28+31+30+31+30+31+31+30+31+30)
   };
   unsigned int  seconds = 0;
   unsigned int  year = 0;
-  year = time->year-1970;       //不考虑2100年千年虫问题
-  seconds = xYEAR*year + xDAY*((year+1)/4);  //前几年过去的秒数
-  seconds += month[time->month-1];      //加上今年本月过去的秒数
-  if( (time->month > 2) && (((year+2)%4)==0) )//2008年为闰年
-    seconds += xDAY;            //闰年加1天秒数
-  seconds += xDAY*(time->day-1);         //加上本天过去的秒数
-  seconds += xHOUR*time->hour;           //加上本小时过去的秒数
-  seconds += xMINUTE*time->minute;       //加上本分钟过去的秒数
-  seconds += time->second;               //加上当前秒数<br>　seconds -= 8 * xHOUR;
+  year = time->year-1970;       //Not considering the Y2K problem in 2100
+  seconds = xYEAR*year + xDAY*((year+1)/4);  //Number of seconds elapsed in previous years
+  seconds += month[time->month-1];      //plus the number of seconds elapsed this month
+  if( (time->month > 2) && (((year+2)%4)==0) )//2008 is a leap year
+    seconds += xDAY;            //Add 1 day and second in leap year
+  seconds += xDAY*(time->day-1);         //plus the number of seconds elapsed today
+  seconds += xHOUR*time->hour;           //plus the seconds elapsed in this hour
+  seconds += xMINUTE*time->minute;       //plus the seconds elapsed in this minute
+  seconds += time->second;               //Add the current number of seconds<br> seconds -= 8 * xHOUR;
   return seconds;
 }
 
-//UNIX转为UTC 已进行时区转换 北京时间UTC+8
+//UNIX to UTC has been converted to time zone Beijing time UTC+8
 void xSeconds2Date(unsigned long seconds,_xtime *time )
 {
     static unsigned int month[12]={
-        /*01月*/31,
-        /*02月*/28,
-        /*03月*/31,
-        /*04月*/30,
-        /*05月*/31,
-        /*06月*/30,
-        /*07月*/31,
-        /*08月*/31,
-        /*09月*/30,
-        /*10月*/31,
-        /*11月*/30,
-        /*12月*/31
+        /*January*/31,
+        /*February*/28,
+        /*March*/31,
+        /*April*/30,
+        /*May*/31,
+        /*June*/30,
+        /*July*/31,
+        /*August*/31,
+        /*September*/30,
+        /*October*/31,
+        /*November*/30,
+        /*December*/31
     };
     unsigned int days;
     unsigned short leap_y_count;
-    time->second      = seconds % 60;//获得秒
+    time->second      = seconds % 60;//Get seconds
     seconds          /= 60;
-    time->minute      =  seconds % 60;//获得分
-//    seconds          += 8 * 60 ;        //时区矫正 转为UTC+8 bylzs
+    time->minute      =  seconds % 60;//Get minutes
+//    seconds          += 8 * 60 ;        //Get second time zone correction to UTC+8 bylzs
     seconds          /= 60;
-    time->hour        = seconds % 24;//获得时
-    days              = seconds / 24;//获得总天数
-    leap_y_count = (days + 365) / 1461;//过去了多少个闰年(4年一闰)
+    time->hour        = seconds % 24;//get hour
+    days              = seconds / 24;//get total days
+    leap_y_count = (days + 365) / 1461;//How many leap years have passed (one leap year every 4 years)
     if( ((days + 366) % 1461) == 0)
-    {//闰年的最后1天
-        time->year = 1970 + (days / 366);//获得年
-        time->month = 12;              //调整月
+    {//The last day of leap year
+        time->year = 1970 + (days / 366);//get year
+        time->month = 12;              //adjust month
         time->day = 31;
         return;
     }
     days -= leap_y_count;
-    time->year = 1970 + (days / 365);     //获得年
-    days %= 365;                       //今年的第几天
-    days = 01 + days;                  //1日开始
+    time->year = 1970 + (days / 365);     //get year
+    days %= 365;                       //What day is this year
+    days = 01 + days;                  //Starting on the 1st
     if( (time->year % 4) == 0 )
     {
-        if(days > 60)--days;            //闰年调整
+        if(days > 60)--days;            //Leap year adjustment
         else
         {
             if(days == 60)
@@ -247,8 +266,8 @@ void xSeconds2Date(unsigned long seconds,_xtime *time )
     {
         days -= month[time->month];
     }
-    ++time->month;               //调整月
-    time->day = days;           //获得日
+    ++time->month;               //adjust month
+    time->day = days;           //adjust days
 }
 
 /*******************************************************************************
@@ -261,7 +280,7 @@ void xSeconds2Date(unsigned long seconds,_xtime *time )
 uint32_t ConvertDateToSecond(const uint8_t *date)
 {
     static const uint16_t months[12] = {
-        0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334  // 闰年的2月需要特殊处理
+        0, 31, 59, 90, 120, 151, 181, 212, 243, 273, 304, 334  // February in leap years requires special treatment
     };
 
     uint32_t seconds = 0;
@@ -291,7 +310,7 @@ uint32_t ConvertDateToSecond(const uint8_t *date)
     temp -= 1;
     days += months[temp];
     if(temp > 1 && (date[4] - 0x30) * 10 + (date[5] - 0x30) % 4 == 0) {
-        days += 1;  // 如果是闰年并且月份超过2月，加一天
+        days += 1;  // If it is a leap year and the month exceeds February, add one day
     }
     //day
     temp = (date[0] - 0x30) * 10 + (date[1] - 0x30);
@@ -314,27 +333,27 @@ uint32_t ConvertDateToSecond(const uint8_t *date)
 time_data read_time(uint32_t startTime){
 
 	  time_data result;
-	  // 获�?� RTC 的时间和日期
+	  // get RTC time and Date
 	  HAL_RTC_GetTime(&hrtc, &sTime, RTC_FORMAT_BIN);
 	  HAL_RTC_GetDate(&hrtc, &sDate, RTC_FORMAT_BIN);
 
-	  // 显示日期和时间
+	  // show date and time
 	  /* Display date Format : yy/mm/dd */
 	  printf("%04d/%02d/%02d\r\n",2000 + sDate.Year, sDate.Month, sDate.Date);
 	  /* Display time Format : hh:mm:ss */
 	  printf("UTC Time is: %02d:%02d:%02d\r\n",sTime.Hours, sTime.Minutes, sTime.Seconds);
 
-	  // 创建一个数组，将从 RTC 获�?�的日期和时间转�?�为 "DDMMYY,HHMMSS.SSS" 格�?
+	  // create an array that converts the date and time obtained from the RTC into "DDMMYY,HHMMSS.SSS" format.
 	  uint8_t rtcDate[14];
 	  sprintf((char *)rtcDate, "%02d%02d%02d,%02d%02d%02d.000",
 	          sDate.Date, sDate.Month, sDate.Year,
 	          sTime.Hours, sTime.Minutes, sTime.Seconds);
 
-	  // 将 RTC 的日期和时间转�?�为 Unix 时间戳
+	  // Convert RTC date and time to Unix timestamp
 	  uint32_t timestamp = ConvertDateToSecond(rtcDate);
 	  printf("Unix Timestamp: %u\n", timestamp);
 
-	    // 为NMEA time结构填充RTC的日期和时间
+	    // Populate the NMEA time structure with the date and time of the RTC
 	  nmea_time testTime = {
 			  .year = 2000 + sDate.Year,
 			  .month = sDate.Month,
@@ -345,15 +364,15 @@ time_data read_time(uint32_t startTime){
 	  };
 
 
-	   // 使用UTC_to_UKtime函数转�?�时间
+	   // Use UTC_to_UKtime function to convert time
 	  UTC_to_UKtime(&testTime);
 
-	    // 打�?�转�?��?�的英国�?令时时间
+	   // print local uk time
 	  printf("Local UK time: %04d-%02d-%02d %02d:%02d:%02d\n",
 	           NMEA_result.local_time.year, NMEA_result.local_time.month, NMEA_result.local_time.date,
 	           NMEA_result.local_time.hour, NMEA_result.local_time.min, NMEA_result.local_time.sec);
 
-	  // 计算程序运行后的流逝时间
+	  // Calculate the elapsed time since the program was run
 	  uint32_t elapsedTime = HAL_GetTick() - startTime;
 	  uint32_t elapsedSeconds = elapsedTime / 1000;
 	  uint32_t elapsedMinutes = elapsedSeconds / 60;
@@ -363,7 +382,9 @@ time_data read_time(uint32_t startTime){
 	  printf("\r\n");
 
 	  result.unix_timestamp = timestamp;
-	  result.utc_time = testTime;  // 假设NMEA_time结构体可以直接赋值，如果不行，请分别为每个字段赋值
+	  // Assume that the NMEA_time structure can be directly assigned a value.
+	  // If not, please assign a value to each field separately.
+	  result.utc_time = testTime;
 	  result.uk_time = NMEA_result.local_time;
 	  result.elapsed_minutes = elapsedMinutes;
 	  result.elapsed_seconds = elapsedSeconds;
