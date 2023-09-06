@@ -17,7 +17,7 @@ The PCB board has been tested to have the low power characteristics, with 0.121W
 - SparkFun 9DoF IMU (ICM-20948) Breakout Board
 - MT25QL512ABB-based self-made Flash Memory Breakout Board
 - Adafruit USB Micro-B Breakout Board
-- ![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/powertest1.jpg)
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/powertest1.jpg)
 
 ## PCB Design
 Component List:
