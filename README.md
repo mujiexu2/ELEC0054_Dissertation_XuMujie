@@ -20,7 +20,7 @@ The PCB board has been tested to have the low power characteristics, with 0.121W
 - Adafruit USB Micro-B Breakout Board
 ![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/powertest1.jpg)
 
-## PCB Design
+## PCB Design (size: 50.961mm x 43.929mm)
 Component List:
 - InvenSense ICM20948 (World's Lowest-Power 9‑Axis MEMS MotionTracking® Device)
 - STM32L412CBT6 (Ultra-low-power Arm® Cortex®-M4 32-bit MCU+FPU)
