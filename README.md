@@ -64,6 +64,6 @@ Component List:
 
 ### schematics(KiCad file)
 - 1_nrst.kicad_sch: circuits schematic up to date version
-
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/pcbboard%20schematics.jpg)
 
 
