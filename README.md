@@ -37,25 +37,27 @@ Component List:
 
 
 #### STM32CubeIDE SPI configuration
-![image]()
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/stm32cube%20SPI%20configuration.jpg)
 
 #### STM32CubeIDE USB + USB Device configuration
-![image]()
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/stm32cube%20USB%20configuration.jpg)
 
-![image]()
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/stm32cube%20USB%20device%20configuration.jpg)
 
 #### STM32CubeIDE RTC configuration
-![image]()
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/stm32cube%20RTC%20configuration.jpg)
 
 ### PCB(DipTrace files):
 - PCB-Xu Mujie-0614.dip: The PCB Diptrace file for assembled PCB board
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/pcb-0614.jpg)
 - PCB-Xu Mujie-spi-0815.dip: The newest PCB Diptrace file
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/pcb%20board-diptrace.jpg)
 
 ### python API(python .py/.ipynb)
 - time.c/time.ipynb:
   - receive data(time and sensor data) transmitted from the USB VCP
   - split data and save as .csv file in local directory
-![image]()
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/csv.png)
 
 ### schematics(KiCad file)
 - 1_nrst.kicad_sch: circuits schematic up to date version
