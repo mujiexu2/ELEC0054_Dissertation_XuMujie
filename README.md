@@ -1,6 +1,7 @@
 # Bespoke Wearable IMU Device
 This wearable system aims to be cost-effective, lightweight and compact size.
-This project is separated in two sections done in parallel, prototyping and PCB Design.
+This project is separated in two sections done in parallel, prototyping and PCB Design. The STM32 board programming is 
+done in STM32CubeIDE, schematics done in KiCad, PCB done in DipTrace, API run in Python(Vscode).
 
 For communication, we have used SPI protocol in MCU & IMU communication, QSPI protocol in Memory & MCU communication, 
 USB transmission in Board & PC communication.
