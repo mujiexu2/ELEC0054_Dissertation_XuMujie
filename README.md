@@ -10,13 +10,14 @@ QSPI, USB interface designed on board is responsible for transmit data to the PC
 present on the API.
 
 Due to time constraints, the PCB file has not been updated to match the version of the schematics file.
+The PCB board has been tested to have the low power characteristics, with 0.121W. Using YOJOCK USB C Tester Power Meter.
 
 ## Prototype
 - NUCLEO-L412RB-P (STM32 Nucleo-64 development board with STM32L412RB MCU, SMPS, supports Arduino, ST Morpho connectivity)
 - SparkFun 9DoF IMU (ICM-20948) Breakout Board
 - MT25QL512ABB-based self-made Flash Memory Breakout Board
 - Adafruit USB Micro-B Breakout Board
-- ![image]()
+- ![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/powertest1.jpg)
 
 ## PCB Design
 Component List:
@@ -24,10 +25,10 @@ Component List:
 - STM32L412CBT6 (Ultra-low-power Arm® Cortex®-M4 32-bit MCU+FPU)
 - MT25QL512ABB (Serial NOR Flash Memory)
 - USB Connector, Micro USB Type B
-![image]()
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/pcb%20board.jpg)
 
 ## Component List:
-![image]()
+![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/components%20list.jpg)
 
 ## File Description
 ### ICM_SPI_rtc(STM32CubeIDE programs):
