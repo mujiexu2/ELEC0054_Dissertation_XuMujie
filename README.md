@@ -58,7 +58,8 @@ Component List:
 - time.c/time.ipynb:
   - receive data(time and sensor data) transmitted from the USB VCP
   - split data and save as .csv file in local directory
-![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/csv.png)
+  - The csv file stored in the format:
+    ![image](https://github.com/mujiexu2/ELEC0054_Dissertation_XuMujie/blob/main/images/csv.png)
 
 ### schematics(KiCad file)
 - 1_nrst.kicad_sch: circuits schematic up to date version
